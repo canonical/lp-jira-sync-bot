@@ -1,0 +1,4 @@
+# Application configuration
+# Replace the placeholder with your actual secret before deploying.
+app:
+  secret_code: "CHANGE_ME"

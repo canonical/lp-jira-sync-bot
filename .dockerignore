@@ -1,0 +1,33 @@
+# Ignore VCS and local tooling
+.git
+.gitignore
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+.env
+.env.*
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Editor/IDE
+.idea/
+.vscode/
+
+# Docker/Compose files not needed in app image
+Dockerfile
+docker-compose.yml
+nginx.conf
+README*
