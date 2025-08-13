@@ -9,7 +9,7 @@ CONFIG_PATH = os.getenv("CONFIG_PATH", "config.yaml")
 
 # Load configuration and secret
 _config = load_config(CONFIG_PATH)
-SECRET_CODE = (_config.get("app") or {}).get("secret_code") or ""
+SECRET_CODE = (_config.get("app") or {}).get("webhook_secret_code") or ""
 
 app = FastAPI()
 
