@@ -1,8 +1,11 @@
+import os
 import yaml
 import base64
 import copy
 from typing import Any, Optional
 
+# Allow overriding the config path via environment
+CONFIG_PATH = os.getenv("CONFIG_PATH", "config.yaml")
 
 def load_config(path: str) -> dict:
     try:
@@ -34,7 +37,7 @@ def decode_base64_yaml(value: Optional[str]) -> Any:
     except Exception as e:
         raise ValueError(f"Invalid YAML content: {e}")
 
-def merge_project_config(global_config: Optional[dict], yaml_param: Optional[str]) -> Optional[dict]:
+def merge_project_config(yaml_param: Optional[str]) -> Optional[dict]:
     base = copy.deepcopy(global_config.get('sync') or {})
     if yaml_param:
         try:
@@ -45,3 +48,6 @@ def merge_project_config(global_config: Optional[dict], yaml_param: Optional[str
                 raise ValueError(f"Invalid base64 YAML in 'yaml' query parameter: {e}")
 
     return base
+
+# Load configuration
+global_config = load_config(CONFIG_PATH)

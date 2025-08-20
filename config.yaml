@@ -1,6 +1,7 @@
 # Application configuration
 app:
-  webhook_secret_code: "CHANGE_ME"
+  launchpad_webhook_secret_code: "CHANGE_ME"
+  launchpad_url: "https://launchpad.net"
   jira_instance: "Jira instance URL"
   jira_username: "Jira username"
   jira_token: "Jira API token"
@@ -11,7 +12,7 @@ app:
 
 sync:
   jira_project_key: "JPK"
-  jira_epic_key: "JEK"
+  jira_epic_key:
   jira_issue_type: "Bug"
   sync_description: true
   sync_comments: true
