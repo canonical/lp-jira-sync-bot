@@ -97,7 +97,7 @@ def update_jira_issue(jira_client: JIRA, issue, bug_object, updated_field):
     """Update a JIRA issue and return the issue object."""
 
     updatable_fields = ["title", "description", "reporter", "status", "importance"]
-    sync_description = global_config.get('app').get('sync_description', False)
+    sync_description = global_config.get('sync').get('sync_description', False)
     if updated_field in updatable_fields:
         if updated_field == "title":
             issue.update(summary=bug_object.get('new').get('title'))
@@ -109,10 +109,10 @@ def update_jira_issue(jira_client: JIRA, issue, bug_object, updated_field):
             )
             issue.update(description=description)
         elif updated_field == "status":
-            status = global_config.get('app').get('status_mapping').get(bug_object.get('new').get('status'))
+            status = global_config.get('sync').get('status_mapping').get(bug_object.get('new').get('status'))
             transition_to_status(jira_client, issue, status)
         elif updated_field == "importance":
-            severity = global_config.get('app').get('severity_mapping').get(bug_object.get('new').get('importance'))
+            severity = global_config.get('sync').get('severity_mapping').get(bug_object.get('new').get('importance'))
             issue.update(priority={"name": severity})
     return issue
 
