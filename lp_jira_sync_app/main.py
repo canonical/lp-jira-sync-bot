@@ -19,7 +19,7 @@ async def webhook_handler(request: Request):
     except Exception:
         payload = {}
 
-    # Merge per-request sync overrides via ?yaml=
+    # Merge per-request project overrides via ?yaml=
     yaml_param = request.query_params.get("yaml") if hasattr(request, "query_params") else None
     project_config = merge_project_config(yaml_param)
     # Prepare Jira client

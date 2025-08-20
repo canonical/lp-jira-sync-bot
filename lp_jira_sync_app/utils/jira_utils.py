@@ -45,19 +45,21 @@ def create_jira_issue(jira_client: JIRA, bug_object: dict, project_config) -> Op
     issue_type = project_config.get('jira_issue_type')
     project_key = project_config.get('jira_project_key')
     epic_key = project_config.get('jira_epic_key') or ''
+    importance = bug_object.get('new').get('importance')
+    status = bug_object.get('new').get('status')
     description = JIRA_ISSUE_TEMPLETE.format(
         launchpad_bug_url=global_config.get('app').get("launchpad_url") + bug_object.get('bug'),
         launchpad_username=bug_object.get('new').get('reporter').lstrip('/'),
         launchpad_bug_description=bug_object.get('new').get('description') if sync_description else ""
 
     )
-    severity = severity_mapping[bug_object.get('new').get('importance')]
+    importance = severity_mapping.get(importance) or 'Medium'
     fields = {
         "summary": bug_object.get('new').get('title'),
         "project": {"key": project_key},
         "description": description,
         "issuetype": {"name": issue_type},
-        "priority": {"name": severity}
+        "priority": {"name": importance}
     }
     jira_componenta = [{'name':k} for k in components]
     if jira_componenta:
@@ -66,7 +68,7 @@ def create_jira_issue(jira_client: JIRA, bug_object: dict, project_config) -> Op
         fields["parent"] = {"key": epic_key}
 
     issue = jira_client.create_issue(fields=fields)
-    status = status_mapping[bug_object.get('new').get('status')]
+    status = status_mapping.get(status) or 'To Do'
     transition_to_status(jira_client, issue, status)
     return issue
 
@@ -97,7 +99,7 @@ def update_jira_issue(jira_client: JIRA, issue, bug_object, updated_field):
     """Update a JIRA issue and return the issue object."""
 
     updatable_fields = ["title", "description", "reporter", "status", "importance"]
-    sync_description = global_config.get('sync').get('sync_description', False)
+    sync_description = global_config.get('project').get('sync_description', False)
     if updated_field in updatable_fields:
         if updated_field == "title":
             issue.update(summary=bug_object.get('new').get('title'))
@@ -109,10 +111,10 @@ def update_jira_issue(jira_client: JIRA, issue, bug_object, updated_field):
             )
             issue.update(description=description)
         elif updated_field == "status":
-            status = global_config.get('sync').get('status_mapping').get(bug_object.get('new').get('status'))
+            status = global_config.get('project').get('status_mapping').get(bug_object.get('new').get('status'))
             transition_to_status(jira_client, issue, status)
         elif updated_field == "importance":
-            severity = global_config.get('sync').get('severity_mapping').get(bug_object.get('new').get('importance'))
+            severity = global_config.get('project').get('severity_mapping').get(bug_object.get('new').get('importance'))
             issue.update(priority={"name": severity})
     return issue
 

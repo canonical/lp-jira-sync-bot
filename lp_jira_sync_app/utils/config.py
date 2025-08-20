@@ -38,12 +38,12 @@ def decode_base64_yaml(value: Optional[str]) -> Any:
         raise ValueError(f"Invalid YAML content: {e}")
 
 def merge_project_config(yaml_param: Optional[str]) -> Optional[dict]:
-    base = copy.deepcopy(global_config.get('sync') or {})
+    base = copy.deepcopy(global_config.get('project') or {})
     if yaml_param:
         try:
             yaml_data = decode_base64_yaml(yaml_param)
-            if isinstance(yaml_data, dict) and isinstance(yaml_data.get('sync'), dict):
-                base.update(yaml_data['sync'])
+            if isinstance(yaml_data, dict) and isinstance(yaml_data.get('project'), dict):
+                base.update(yaml_data['project'])
         except Exception as e:
                 raise ValueError(f"Invalid base64 YAML in 'yaml' query parameter: {e}")
 

@@ -6,11 +6,11 @@ app:
   jira_username: "Jira username"
   jira_token: "Jira API token"
 
-#Copy this part("sync") , base64 encode and add to your webhook as aml parameter if you want to modify it per Project
+#Copy this part("project") , base64 encode and add to your webhook as aml parameter if you want to modify it per Project
 #Url will be https://<your_domain>/?yaml = <base64_encoded_yaml_of_sync>
 #"app" part is the same for all projects, and it is not configurable by per project
 
-sync:
+project:
   jira_project_key: "JPK"
   jira_epic_key:
   jira_issue_type: "Bug"
