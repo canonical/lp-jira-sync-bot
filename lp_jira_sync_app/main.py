@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException, status
 from starlette.responses import JSONResponse
-from .utils.config import merge_project_config, global_config
+from .utils.config import merge_project_config, global_config, logger
 from .utils.launchpad_utils import sync_launchpad_action
 from .utils.security import require_hmac_signature
 from .utils.jira_utils import build_jira_client
@@ -14,10 +14,10 @@ app = FastAPI()
 @require_hmac_signature(SECRET_CODE)
 async def webhook_handler(request: Request):
     # Parse JSON body (if present)
-    try:
-        payload = await request.json()
-    except Exception:
-        payload = {}
+
+    payload = await request.json()
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
     # Merge per-request project overrides via ?yaml=
     yaml_param = request.query_params.get("yaml") if hasattr(request, "query_params") else None
@@ -25,8 +25,9 @@ async def webhook_handler(request: Request):
     # Prepare Jira client
     try:
         jira = build_jira_client()
-    except ValueError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to build JIRA client: {e}")
+        raise HTTPException(status_code=500)
 
     sync_launchpad_action(payload, jira, project_config)
 

@@ -1,11 +1,25 @@
+import logging
 import os
 import yaml
 import base64
 import copy
 from typing import Any, Optional
 
-# Allow overriding the config path via environment
+# Allow overriding the config path via environment in docker-compose file
 CONFIG_PATH = os.getenv("CONFIG_PATH", "config.yaml")
+
+def define_logger():
+    """Define logger to output to the file and to STDOUT."""
+    log = logging.getLogger("lp-jira-sync-bot")
+    log.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S"
+    )
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    log.addHandler(stream_handler)
+    return log
+
 
 def load_config(path: str) -> dict:
     try:
@@ -51,3 +65,4 @@ def merge_project_config(yaml_param: Optional[str]) -> Optional[dict]:
 
 # Load configuration
 global_config = load_config(CONFIG_PATH)
+logger = define_logger()

@@ -1,5 +1,7 @@
 from fastapi import HTTPException
 from jira import JIRA
+
+from lp_jira_sync_app.utils.config import logger
 from lp_jira_sync_app.utils.jira_utils import find_jira_issue, create_jira_issue, create_jira_comment, update_jira_issue
 
 def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict):
@@ -14,27 +16,31 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
                 if issue:
                     create_jira_comment(jira_client, issue, payload)
                 else:
-                  raise HTTPException(status_code=404, detail="Related Jira issue not found for comment event")
+                    logger.error(f"Jira issue not found for Launchpad Bug {bug_path}")
+                    raise HTTPException(status_code=404)
 
             else:
                 issue = find_jira_issue(jira_client, project_in_jira, bug_path)
                 if not issue:
                     create_jira_issue(jira_client, payload, project_config)
                 else:
-                  raise HTTPException(status_code=404, detail="Jira issue already exists for this Launchpad Bug")
+                    logger.error(f"Jira issue already exists for Launchpad Bug {bug_path}")
+                    raise HTTPException(status_code=404)
         elif '-changed' in action:
             updated_field = action.split('-')[0]
             issue = find_jira_issue(jira_client, project_in_jira, bug_path)
             if issue:
                 update_jira_issue(jira_client, issue, payload, updated_field)
             else:
-                raise HTTPException(status_code=404, detail="Related Jira issue not found for comment event")
+                logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_path}")
+                raise HTTPException(status_code=404)
 
     except HTTPException:
         raise
     except Exception as e:
         # Convert unexpected JIRA errors to 500
-        raise HTTPException(status_code=500, detail=f"Jira operation failed: {e}")
+        logger.error(f"Error during jira operation {e}/n/n Payload: {payload}, Project Config: {project_config}")
+        raise HTTPException(status_code=500)
 
 
 
