@@ -27,10 +27,9 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
                     logger.error(f"Jira issue already exists for Launchpad Bug {bug_path}")
                     raise HTTPException(status_code=404)
         elif '-changed' in action:
-            updated_field = action.split('-')[0]
             issue = find_jira_issue(jira_client, project_in_jira, bug_path)
             if issue:
-                update_jira_issue(jira_client, issue, payload, updated_field)
+                update_jira_issue(jira_client, issue, payload)
             else:
                 logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_path}")
                 raise HTTPException(status_code=404)

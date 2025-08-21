@@ -16,10 +16,6 @@ async def webhook_handler(request: Request):
     # Parse JSON body (if present)
 
     payload = await request.json()
-    if not payload:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
-    # Merge per-request project overrides via ?yaml=
     yaml_param = request.query_params.get("yaml") if hasattr(request, "query_params") else None
     project_config = merge_project_config(yaml_param)
     # Prepare Jira client

@@ -95,11 +95,12 @@ def create_jira_comment(jira_client: JIRA, issue, bug_object):
     )
     jira_client.add_comment(issue, comment_templete)
 
-def update_jira_issue(jira_client: JIRA, issue, bug_object, updated_field):
+def update_jira_issue(jira_client: JIRA, issue, bug_object):
     """Update a JIRA issue and return the issue object."""
 
     updatable_fields = ["title", "description", "reporter", "status", "importance"]
     sync_description = global_config.get('project').get('sync_description', False)
+    updated_field = bug_object.get('action').split('-')[0]
     if updated_field in updatable_fields:
         if updated_field == "title":
             issue.update(summary=bug_object.get('new').get('title'))

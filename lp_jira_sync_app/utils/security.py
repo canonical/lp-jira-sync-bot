@@ -31,17 +31,19 @@ def require_hmac_signature(secret: str):
         @wraps(func)
         async def wrapper(request, *args, **kwargs):
             body = await request.body()
+            if not body:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
             sig_header = request.headers.get("X-Hub-Signature")
             hex_sig = parse_signature(sig_header)
             if not secret:
                 raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Server HMAC secret not configured",
+                    status_code=status.HTTP_401_UNAUTHORIZED
                 )
             if not hex_sig or not verify_hmac_sha1(body, hex_sig, secret):
                 raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid or missing HMAC-SHA1 signature",
+                    status_code=status.HTTP_401_UNAUTHORIZED
                 )
             return await func(request, *args, **kwargs)
 
