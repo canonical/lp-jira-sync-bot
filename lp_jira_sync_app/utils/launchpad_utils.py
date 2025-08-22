@@ -7,18 +7,18 @@ from lp_jira_sync_app.utils.jira_utils import find_jira_issue, create_jira_issue
 
 
 def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict):
-    action = payload.get('action')
-    bug_id = payload.get('bug').split('/')[-1]
-    target = payload.get('target')
-    bug_url = f"{global_config.get('app').get('launchpad_url')}{target}/+bug/{bug_id}"
-    project_in_jira = project_config.get('jira_project_key')
-    sync_comments = project_config.get('sync_comments',False)
+    action = payload.get("action")
+    bug_id = payload.get("bug").split("/")[-1]
+    target = payload.get("target")
+    bug_url = f"{global_config.get("app").get("launchpad_url")}{target}/+bug/{bug_id}"
+    project_in_jira = project_config.get("jira_project_key")
+    sync_comments = project_config.get("sync_comments",False)
     try:
-        if action == 'created':
+        if action == "created":
             issue = find_jira_issue(jira_client, project_in_jira, bug_url)
 
             # Handle comment creation on an existing issue
-            if 'bug_comment' in payload:
+            if "bug_comment" in payload:
                 if not sync_comments:
                     return
 
@@ -26,9 +26,9 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
                     logger.error(f"Jira issue not found for Launchpad Bug {bug_url}")
                     raise HTTPException(status_code=404)
 
-                if find_jira_comment(issue, payload.get('bug_comment')):
+                if find_jira_comment(issue, payload.get("bug_comment")):
                     logger.error(
-                        f"Jira issue already has comment for Launchpad Bug comment {payload.get('bug_comment')}")
+                        f"Jira issue already has comment for Launchpad Bug comment {payload.get("bug_comment")}")
                     raise HTTPException(status_code=404)
 
                 create_jira_comment(jira_client, issue, payload)
@@ -42,7 +42,7 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
             create_jira_issue(jira_client, payload, project_config)
             return
 
-        if '-changed' in action:
+        if "-changed" in action:
             issue = find_jira_issue(jira_client, project_in_jira, bug_url)
             if not issue:
                 logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_url}")
