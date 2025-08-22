@@ -11,14 +11,14 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
     sync_comments = project_config.get('sync_comments',False)
     try:
         if action == 'created':
-            if 'bug_comment' in payload and sync_comments:
-                issue = find_jira_issue(jira_client, project_in_jira, bug_path)
-                if issue:
-                    create_jira_comment(jira_client, issue, payload)
-                else:
-                    logger.error(f"Jira issue not found for Launchpad Bug {bug_path}")
-                    raise HTTPException(status_code=404)
-
+            if 'bug_comment' in payload:
+                if sync_comments:
+                    issue = find_jira_issue(jira_client, project_in_jira, bug_path)
+                    if issue:
+                        create_jira_comment(jira_client, issue, payload)
+                    else:
+                        logger.error(f"Jira issue not found for Launchpad Bug {bug_path}")
+                        raise HTTPException(status_code=404)
             else:
                 issue = find_jira_issue(jira_client, project_in_jira, bug_path)
                 if not issue:
