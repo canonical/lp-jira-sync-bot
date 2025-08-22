@@ -13,39 +13,49 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
     sync_comments = project_config.get('sync_comments',False)
     try:
         if action == 'created':
-            if 'bug_comment' in payload:
-                if sync_comments:
-                    issue = find_jira_issue(jira_client, project_in_jira, bug_path)
-                    if issue:
-                        if not find_jira_comment(issue, payload.get('bug_comment')):
-                            create_jira_comment(jira_client, issue, payload)
-                        else:
-                            logger.error(f"Jira issue already has comment for Launchpad Bug comment {payload.get('bug_comment')}")
-                            raise HTTPException(status_code=404)
-                    else:
-                        logger.error(f"Jira issue not found for Launchpad Bug {bug_path}")
-                        raise HTTPException(status_code=404)
-            else:
-                issue = find_jira_issue(jira_client, project_in_jira, bug_path)
-                if not issue:
-                    create_jira_issue(jira_client, payload, project_config)
-                else:
-                    logger.error(f"Jira issue already exists for Launchpad Bug {bug_path}")
-                    raise HTTPException(status_code=404)
-        elif '-changed' in action:
             issue = find_jira_issue(jira_client, project_in_jira, bug_path)
+
+            # Handle comment creation on an existing issue
+            if 'bug_comment' in payload:
+                if not sync_comments:
+                    return
+
+                if not issue:
+                    logger.error(f"Jira issue not found for Launchpad Bug {bug_path}")
+                    raise HTTPException(status_code=404)
+
+                if find_jira_comment(issue, payload.get('bug_comment')):
+                    logger.error(
+                        f"Jira issue already has comment for Launchpad Bug comment {payload.get('bug_comment')}")
+                    raise HTTPException(status_code=404)
+
+                create_jira_comment(jira_client, issue, payload)
+                return
+
+            # Handle new issue creation
             if issue:
-                update_jira_issue(jira_client, issue, payload, project_config)
-            else:
+                logger.error(f"Jira issue already exists for Launchpad Bug {bug_path}")
+                raise HTTPException(status_code=404)
+
+            create_jira_issue(jira_client, payload, project_config)
+            return
+
+        if '-changed' in action:
+            issue = find_jira_issue(jira_client, project_in_jira, bug_path)
+            if not issue:
                 logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_path}")
                 raise HTTPException(status_code=404)
+
+            update_jira_issue(jira_client, issue, payload, project_config)
+            return
 
     except HTTPException:
         raise
     except Exception as e:
         # Convert unexpected JIRA errors to 500
-        logger.error(f"Error during jira operation {e}/n/n Payload: {payload}, Project Config: {project_config}")
+        logger.error(f"Error during jira operation {e} , Payload: {payload}, Project Config: {project_config}")
         raise HTTPException(status_code=500)
+
 
 
 
