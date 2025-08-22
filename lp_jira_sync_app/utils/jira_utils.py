@@ -48,7 +48,7 @@ def create_jira_issue(jira_client: JIRA, bug_object: dict, project_config) -> Op
     importance = bug_object.get('new').get('importance')
     status = bug_object.get('new').get('status')
     description = JIRA_ISSUE_TEMPLETE.format(
-        launchpad_bug_url=f"{global_config.get('app').get("launchpad_url")}{bug_object.get('target')}{bug_object.get('bug')}",
+        launchpad_bug_url=f"{global_config.get('app').get('launchpad_url')}{bug_object.get('target')}{bug_object.get('bug')}",
         launchpad_username=bug_object.get('new').get('reporter').lstrip('/'),
         launchpad_bug_description=bug_object.get('new').get('description') if sync_description else ""
 
@@ -112,7 +112,7 @@ def update_jira_issue(jira_client: JIRA, issue, bug_object, project_config):
             issue.update(summary=bug_object.get('new').get('title'))
         elif updated_field in [ "description", "reporter"] and sync_description:
             description = JIRA_ISSUE_TEMPLETE.format(
-                launchpad_bug_url=f"{global_config.get('app').get("launchpad_url")}{bug_object.get('target')}{bug_object.get('bug')}",
+                launchpad_bug_url=f"{global_config.get('app').get('launchpad_url')}{bug_object.get('target')}{bug_object.get('bug')}",
                 launchpad_username=bug_object.get('new').get('reporter').lstrip('/'),
                 launchpad_bug_description=bug_object.get('new').get('description')
             )
