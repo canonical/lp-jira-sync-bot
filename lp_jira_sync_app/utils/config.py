@@ -26,10 +26,10 @@ def load_config(path: str) -> dict:
         with open(path, "r", encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
     except FileNotFoundError:
-        print(f"Config file not found at '{path}'.")
+        print(f"Config file not found at \"{path}\".")
         return {}
     except Exception as e:
-        print(f"Failed to read config file '{path}': {e}")
+        print(f"Failed to read config file \"{path}\": {e}")
         return {}
 
 def decode_base64_yaml(value: Optional[str]) -> Any:
@@ -52,14 +52,14 @@ def decode_base64_yaml(value: Optional[str]) -> Any:
         raise ValueError(f"Invalid YAML content: {e}")
 
 def merge_project_config(yaml_param: Optional[str]) -> Optional[dict]:
-    base = copy.deepcopy(global_config.get('project') or {})
+    base = copy.deepcopy(global_config.get("project") or {})
     if yaml_param:
         try:
             yaml_data = decode_base64_yaml(yaml_param)
-            if isinstance(yaml_data, dict) and isinstance(yaml_data.get('project'), dict):
-                base.update(yaml_data['project'])
+            if isinstance(yaml_data, dict) and isinstance(yaml_data.get("project"), dict):
+                base.update(yaml_data["project"])
         except Exception as e:
-                raise ValueError(f"Invalid base64 YAML in 'yaml' query parameter: {e}")
+                raise ValueError(f"Invalid base64 YAML in \"yaml\" query parameter: {e}")
 
     return base
 
