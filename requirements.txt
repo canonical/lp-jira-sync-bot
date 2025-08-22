@@ -3,3 +3,4 @@ jira==3.10.5
 uvicorn==0.30.6
 PyYAML==6.0.2
 pytest==8.3.2
+httpx==0.28.1
