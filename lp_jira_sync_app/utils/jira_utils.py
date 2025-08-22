@@ -101,11 +101,11 @@ def create_jira_comment(jira_client: JIRA, issue, bug_object):
     )
     jira_client.add_comment(issue, comment_templete)
 
-def update_jira_issue(jira_client: JIRA, issue, bug_object):
+def update_jira_issue(jira_client: JIRA, issue, bug_object, project_config):
     """Update a JIRA issue and return the issue object."""
 
     updatable_fields = ["title", "description", "reporter", "status", "importance"]
-    sync_description = global_config.get('project').get('sync_description', False)
+    sync_description = project_config.get('project').get('sync_description', False)
     updated_field = bug_object.get('action').split('-')[0]
     if updated_field in updatable_fields:
         if updated_field == "title":
@@ -118,13 +118,13 @@ def update_jira_issue(jira_client: JIRA, issue, bug_object):
             )
             issue.update(description=description)
         elif updated_field == "status":
-            status_mapping = global_config.get('project').get('status_mapping')
+            status_mapping = project_config.get('project').get('status_mapping')
             if status_mapping and isinstance(status_mapping, dict):
                 status = bug_object.get('new').get('status')
                 status = status_mapping.get(status) or 'To Do'
                 transition_to_status(jira_client, issue, status)
         elif updated_field == "importance":
-            severity_mapping = global_config.get('project').get('severity_mapping')
+            severity_mapping = project_config.get('project').get('severity_mapping')
             if severity_mapping and isinstance(severity_mapping, dict):
                 severity = bug_object.get('new').get('importance')
                 severity = severity_mapping.get(severity) or 'Medium'
