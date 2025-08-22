@@ -29,7 +29,7 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
         elif '-changed' in action:
             issue = find_jira_issue(jira_client, project_in_jira, bug_path)
             if issue:
-                update_jira_issue(jira_client, issue, payload)
+                update_jira_issue(jira_client, issue, payload, project_config)
             else:
                 logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_path}")
                 raise HTTPException(status_code=404)
