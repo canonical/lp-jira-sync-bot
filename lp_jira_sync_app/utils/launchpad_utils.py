@@ -1,19 +1,21 @@
 from fastapi import HTTPException
 from jira import JIRA
 
-from lp_jira_sync_app.utils.config import logger
+from lp_jira_sync_app.utils.config import logger, global_config
 from lp_jira_sync_app.utils.jira_utils import find_jira_issue, create_jira_issue, create_jira_comment, \
     update_jira_issue, find_jira_comment
 
 
 def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict):
     action = payload.get('action')
-    bug_path = payload.get('bug')
+    bug_id = payload.get('bug').split('/')[-1]
+    target = payload.get('target')
+    bug_url = f"{global_config.get('app').get('launchpad_url')}{target}/+bug/{bug_id}"
     project_in_jira = project_config.get('jira_project_key')
     sync_comments = project_config.get('sync_comments',False)
     try:
         if action == 'created':
-            issue = find_jira_issue(jira_client, project_in_jira, bug_path)
+            issue = find_jira_issue(jira_client, project_in_jira, bug_url)
 
             # Handle comment creation on an existing issue
             if 'bug_comment' in payload:
@@ -21,7 +23,7 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
                     return
 
                 if not issue:
-                    logger.error(f"Jira issue not found for Launchpad Bug {bug_path}")
+                    logger.error(f"Jira issue not found for Launchpad Bug {bug_url}")
                     raise HTTPException(status_code=404)
 
                 if find_jira_comment(issue, payload.get('bug_comment')):
@@ -34,16 +36,16 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
 
             # Handle new issue creation
             if issue:
-                logger.error(f"Jira issue already exists for Launchpad Bug {bug_path}")
+                logger.error(f"Jira issue already exists for Launchpad Bug {bug_url}")
                 raise HTTPException(status_code=404)
 
             create_jira_issue(jira_client, payload, project_config)
             return
 
         if '-changed' in action:
-            issue = find_jira_issue(jira_client, project_in_jira, bug_path)
+            issue = find_jira_issue(jira_client, project_in_jira, bug_url)
             if not issue:
-                logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_path}")
+                logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_url}")
                 raise HTTPException(status_code=404)
 
             update_jira_issue(jira_client, issue, payload, project_config)

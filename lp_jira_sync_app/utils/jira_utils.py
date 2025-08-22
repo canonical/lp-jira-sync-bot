@@ -58,8 +58,11 @@ def create_jira_issue(jira_client: JIRA, bug_object: dict, project_config) -> Op
     epic_key = project_config.get('jira_epic_key') or ''
     importance = bug_object.get('new').get('importance')
     status = bug_object.get('new').get('status')
+    bug_id = bug_object.get('bug').split('/')[-1]
+    target =  bug_object.get('target')
+    bug_url = f"{global_config.get('app').get('launchpad_url')}{target}/+bug/{bug_id}"
     description = JIRA_ISSUE_TEMPLETE.format(
-        launchpad_bug_url=f"{global_config.get('app').get('launchpad_url')}{bug_object.get('bug')}",
+        launchpad_bug_url=bug_url,
         launchpad_username=bug_object.get('new').get('reporter').lstrip('/'),
         launchpad_bug_description=bug_object.get('new').get('description') if sync_description else ""
 
@@ -119,12 +122,15 @@ def update_jira_issue(jira_client: JIRA, issue, bug_object, project_config):
     updatable_fields = ["title", "description", "reporter", "status", "importance"]
     sync_description = project_config.get('sync_description', False)
     updated_field = bug_object.get('action').split('-')[0]
+    bug_id = bug_object.get('bug').split('/')[-1]
+    target = bug_object.get('target')
+    bug_url = f"{global_config.get('app').get('launchpad_url')}{target}/+bug/{bug_id}"
     if updated_field in updatable_fields:
         if updated_field == "title":
             issue.update(summary=bug_object.get('new').get('title'))
         elif updated_field in [ "description", "reporter"] and sync_description:
             description = JIRA_ISSUE_TEMPLETE.format(
-                launchpad_bug_url=f"{global_config.get('app').get('launchpad_url')}{bug_object.get('bug')}",
+                launchpad_bug_url=bug_url,
                 launchpad_username=bug_object.get('new').get('reporter').lstrip('/'),
                 launchpad_bug_description=bug_object.get('new').get('description')
             )
