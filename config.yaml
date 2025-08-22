@@ -1,0 +1,44 @@
+# Application configuration
+app:
+  launchpad_webhook_secret_code: "CHANGE_ME"
+  launchpad_url: "https://launchpad.net"
+  jira_instance: "Jira instance URL"
+  jira_username: "Jira username"
+  jira_token: "Jira API token"
+
+#Copy this section("project") , base64 encode and add to your webhook as aml parameter if you want to modify it per Project
+#Url will be https://<your_domain>/?yaml = <base64_encoded_yaml_of_sync>
+#"app" section is the same for all projects, and it is not configurable by per project
+
+project:
+  jira_project_key: "JPK"
+  jira_epic_key:
+  jira_issue_type: "Bug"
+  sync_description: true
+  sync_comments: true
+  components:
+  status_mapping:
+    New: To Do
+    Incomplete: To Do
+    Opinion: To Do
+    Invalid: To Do
+    Won't Fix: To Do
+    Confirmed: Open
+    Triaged: Selected for Development
+    In Progress: In Progress
+    Deferred: Selected for Development
+    Fix Committed: In Review
+    Fix Released: Done
+
+  severity_mapping:
+    Undecided: Medium
+    Critical: Highest
+    High: High
+    Medium: Medium
+    Low: Low
+    Wishlist: Low
+
+
+
+
+
