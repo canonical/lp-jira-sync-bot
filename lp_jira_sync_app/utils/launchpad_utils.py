@@ -2,7 +2,9 @@ from fastapi import HTTPException
 from jira import JIRA
 
 from lp_jira_sync_app.utils.config import logger
-from lp_jira_sync_app.utils.jira_utils import find_jira_issue, create_jira_issue, create_jira_comment, update_jira_issue
+from lp_jira_sync_app.utils.jira_utils import find_jira_issue, create_jira_issue, create_jira_comment, \
+    update_jira_issue, find_jira_comment
+
 
 def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict):
     action = payload.get('action')
@@ -15,7 +17,11 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
                 if sync_comments:
                     issue = find_jira_issue(jira_client, project_in_jira, bug_path)
                     if issue:
-                        create_jira_comment(jira_client, issue, payload)
+                        if not find_jira_comment(issue, payload.get('bug_comment')):
+                            create_jira_comment(jira_client, issue, payload)
+                        else:
+                            logger.error(f"Jira issue already has comment for Launchpad Bug comment {payload.get('bug_comment')}")
+                            raise HTTPException(status_code=404)
                     else:
                         logger.error(f"Jira issue not found for Launchpad Bug {bug_path}")
                         raise HTTPException(status_code=404)

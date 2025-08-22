@@ -10,7 +10,10 @@ Issue was submitted by Launchpad user: {launchpad_username}
 
 '''
 JIRA_COMMENT_TEMPLETE = '''
+Launchpad comment URL:
+{launchpad_comment_url}
 Launchpad user {launchpad_username} is commented:
+
 {launchpad_comment}
 
 '''
@@ -34,6 +37,14 @@ def find_jira_issue(jira_client: JIRA, project_key: str, issue_key: str) -> Opti
     jql = f'project = "{project_key}" AND text ~ "{issue_key}" ORDER BY created DESC'
     issues = jira_client.search_issues(jql, maxResults=1,json_result=False)
     return issues[0] if issues else None
+
+def find_jira_comment(issue: str, comment_path: str) -> bool:
+    """Find if comment exists in issue."""
+    for comment in issue.fields.comment.comments:
+        if comment_path in comment.body:
+            return True
+    return False
+
 
 def create_jira_issue(jira_client: JIRA, bug_object: dict, project_config) -> Optional[dict]:
     """Create a JIRA issue and return the issue object."""
@@ -97,7 +108,8 @@ def create_jira_comment(jira_client: JIRA, issue, bug_object):
     """Create a JIRA comment and return the comment object."""
     comment_templete = JIRA_COMMENT_TEMPLETE.format(
         launchpad_username=bug_object.get('new').get('commenter').lstrip('/'),
-        launchpad_comment=bug_object.get('new').get('content')
+        launchpad_comment=bug_object.get('new').get('content'),
+        launchpad_comment_url=f"{global_config.get('app').get('launchpad_url')}{bug_object.get('bug_comment')}"
     )
     jira_client.add_comment(issue, comment_templete)
 
