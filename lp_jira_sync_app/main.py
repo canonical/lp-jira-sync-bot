@@ -11,6 +11,7 @@ SECRET_CODE = (global_config.get("app") or {}).get("launchpad_webhook_secret_cod
 app = FastAPI()
 
 @app.post("/")
+@require_hmac_signature(SECRET_CODE)
 async def webhook_handler(request: Request):
 
     payload = await request.json()
