@@ -18,11 +18,6 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
 
     try:
         if action == "created":
-            if sync_only_with_tags:
-                if not any(tag in sync_only_with_tags for tag in tags):
-                    logger.error(f"Launchpad bug tags do not match to syncable tags: {tags}")
-                    raise HTTPException(status_code=404)
-
             issue = find_jira_issue(jira_client, project_in_jira, bug_url)
             # Handle comment creation on an existing issue
             if "bug_comment" in payload:
@@ -46,6 +41,10 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
                 logger.error(f"Jira issue already exists for Launchpad Bug {bug_url}")
                 raise HTTPException(status_code=404)
 
+            if sync_only_with_tags:
+                if not any(tag in sync_only_with_tags for tag in tags):
+                    logger.error(f"Launchpad bug tags do not match to syncable tags: {tags}")
+                    raise HTTPException(status_code=404)
             create_jira_issue(jira_client, payload, project_config)
             return
 
