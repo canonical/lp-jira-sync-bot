@@ -16,6 +16,7 @@ project:
   jira_issue_type: "Bug"
   sync_description: true
   sync_comments: true
+  sync_only_with_tags:
   components:
   status_mapping:
     New: To Do

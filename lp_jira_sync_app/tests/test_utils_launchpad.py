@@ -84,7 +84,7 @@ def test_handle_update_bug_lp_event(monkeypatch):
         calls["find"] += 1
         return object()
 
-    def update_jira_issue(jira_client, payload, project_config):
+    def update_jira_issue(jira_client, issue, payload, project_config):
         calls["update"] += 1
         return object()
 
