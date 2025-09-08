@@ -63,6 +63,33 @@ def merge_project_config(yaml_param: Optional[str]) -> Optional[dict]:
 
     return base
 
+def apply_env_overrides(cfg: dict) -> dict:
+    """
+    Override some config values from environment variables if they exist.
+    """
+    if cfg is None:
+        cfg = {}
+    app_cfg = dict(cfg.get("app") or {})
+    override_list = [
+        "launchpad_webhook_secret_code",
+        "launchpad_url",
+        "jira_instance",
+        "jira_username",
+        "jira_token",
+    ]
+
+    for env_name in override_list:
+            val = os.getenv(env_name)
+            if val is not None and val != "":
+                app_cfg[env_name] = val
+                break  # prefer first available env var
+
+    cfg["app"] = app_cfg
+    return cfg
+
+
 # Load configuration
 global_config = load_config(CONFIG_PATH)
+# Apply environment overrides
+global_config = apply_env_overrides(global_config)
 logger = define_logger()
