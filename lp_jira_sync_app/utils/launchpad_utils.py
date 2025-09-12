@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 from jira import JIRA
 
-from config import logger, global_config
-from jira_utils import find_jira_issue, create_jira_issue, create_jira_comment, \
+from .config import logger, global_config
+from .jira_utils import find_jira_issue, create_jira_issue, create_jira_comment, \
     update_jira_issue, find_jira_comment
 
 
