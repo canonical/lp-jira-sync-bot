@@ -1,0 +1,34 @@
+name: lp-jira-sync-bot
+base: ubuntu@24.04
+version: "0.1"
+summary: "Launchpad to JIRA sync FastAPI service"
+description: |
+  A FastAPI-based webhook service that validates Launchpad webhook requests,
+  constructs a JIRA client, and synchronizes Launchpad events to JIRA
+  according to a provided project configuration.
+license: AGPL-3.0
+platforms:
+    #amd64:
+    arm64:
+    # ppc64el:
+    # s390x:
+
+extensions:
+ - fastapi-framework
+
+parts:
+  fastapi-framework/install-app:
+    prime:
+      - app/main.py
+      - app/__init__.py
+      - app/utils
+      - app/config.yaml
+services:
+  fastapi:
+    override: replace
+    summary: FastAPI service for Launchpad-JIRA synchronization
+    startup: enabled
+    on-failure: restart
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    environment:
+      PATH: /venv/bin:/bin:/usr/bin

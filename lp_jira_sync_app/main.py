@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Request, HTTPException, status
 from starlette.responses import JSONResponse
-from .utils.config import merge_project_config, global_config, logger
-from .utils.launchpad_utils import sync_launchpad_action
-from .utils.security import require_hmac_signature
-from .utils.jira_utils import build_jira_client
+from utils.config import merge_project_config, global_config, logger
+from utils.launchpad_utils import sync_launchpad_action
+from utils.security import require_hmac_signature
+from utils.jira_utils import build_jira_client
 
 SECRET_CODE = (global_config.get("app") or {}).get("launchpad_webhook_secret_code") or ""
 
