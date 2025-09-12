@@ -1,6 +1,6 @@
 from typing import Optional, Dict, Any
 from jira import JIRA
-from lp_jira_sync_app.utils.config import global_config
+from config import global_config
 
 JIRA_ISSUE_TEMPLETE = '''
 This issue was created from Launchpad issue {launchpad_bug_url}

@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application source (only the app package to keep image small)
 COPY lp_jira_sync_app/ ./lp_jira_sync_app/
 # Copy configuration file
-COPY config.yaml ./config.yaml
+COPY lp_jira_sync_app/config.yaml ./config.yaml
 
 # The application listens on port 8000
 EXPOSE 8000
