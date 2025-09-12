@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install dependencies first (better layer caching)
-COPY requirements.txt ./
+COPY lp_jira_sync_app/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source (only the app package to keep image small)
