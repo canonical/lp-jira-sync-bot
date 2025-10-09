@@ -8,8 +8,8 @@ description: |
   according to a provided project configuration.
 license: AGPL-3.0
 platforms:
-    #amd64:
-    arm64:
+    amd64:
+    #arm64:
     # ppc64el:
     # s390x:
 

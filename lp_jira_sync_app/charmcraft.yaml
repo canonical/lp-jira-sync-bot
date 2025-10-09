@@ -12,8 +12,8 @@ description: |
 # The bases define the build/run environment for the charm artifact.
 base: ubuntu@24.04
 platforms:
-  #amd64:
-  arm64:
+  amd64:
+  #arm64:
   # ppc64el:
   # s390x:
 # Parts define how to build the charm artifact.
@@ -30,7 +30,19 @@ resources:
 
 # Configuration options exposed by the charm to operators.
 config:
+
   options:
+    external-hostname:
+      description: |
+        The external hostname to use. Will default to the name of the deployed
+        application.
+      default: ""
+      type: string
+
+    port:
+      default: 8000
+      type: int
+
     launchpad_webhook_secret_code:
       type: string
       default: ""
@@ -57,3 +69,11 @@ config:
       type: string
       default: "Jira API token"
       description: JIRA API token used for authentication. Consider storing this securely via your deployment tooling.
+
+containers:
+  lp-jira-sync-bot:
+    resource: lp-jira-sync-bot
+
+requires:
+  nginx-route:
+    interface: nginx-route
