@@ -5,6 +5,7 @@ from .config import global_config
 JIRA_ISSUE_TEMPLETE = '''
 This issue was created from Launchpad issue {launchpad_bug_url}
 Issue was submitted by Launchpad user: {launchpad_username}
+{launchpad_tags}
 
 {launchpad_bug_description}
 
@@ -61,9 +62,11 @@ def create_jira_issue(jira_client: JIRA, bug_object: dict, project_config) -> Op
     bug_id = bug_object.get("bug").split("/")[-1]
     target =  bug_object.get("target")
     bug_url = f"{global_config.get("app").get("launchpad_url")}{target}/+bug/{bug_id}"
+    tags = ",".join(bug_object.get("new").get("tags", []))
     description = JIRA_ISSUE_TEMPLETE.format(
         launchpad_bug_url=bug_url,
         launchpad_username=bug_object.get("new").get("reporter").lstrip("/"),
+        launchpad_tags = f"Tags:{tags}" if tags else "",
         launchpad_bug_description=bug_object.get("new").get("description") if sync_description else ""
 
     )
@@ -119,18 +122,21 @@ def create_jira_comment(jira_client: JIRA, issue, bug_object):
 def update_jira_issue(jira_client: JIRA, issue, bug_object, project_config):
     """Update a JIRA issue and return the issue object."""
 
-    updatable_fields = ["title", "description", "reporter", "status", "importance"]
+    updatable_fields = ["title", "description", "reporter", "status", "importance", "tags"]
     sync_description = project_config.get("sync_description", False)
     updated_field = bug_object.get("action").split("-")[0]
     bug_id = bug_object.get("bug").split("/")[-1]
     target = bug_object.get("target")
     bug_url = f"{global_config.get("app").get("launchpad_url")}{target}/+bug/{bug_id}"
+    tags = ",".join(bug_object.get("new").get("tags", []))
+
     if updated_field in updatable_fields:
         if updated_field == "title":
             issue.update(summary=bug_object.get("new").get("title"))
-        elif updated_field in [ "description", "reporter"] and sync_description:
+        elif updated_field in [ "description", "reporter", "tags"] and sync_description:
             description = JIRA_ISSUE_TEMPLETE.format(
                 launchpad_bug_url=bug_url,
+                launchpad_tags=f"Tags:{tags}" if tags else "",
                 launchpad_username=bug_object.get("new").get("reporter").lstrip("/"),
                 launchpad_bug_description=bug_object.get("new").get("description")
             )
