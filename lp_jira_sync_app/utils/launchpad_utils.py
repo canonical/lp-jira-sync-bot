@@ -25,8 +25,7 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
                     return
 
                 if not issue:
-                    logger.error(f"Jira issue not found for Launchpad Bug {bug_url}")
-                    raise HTTPException(status_code=404)
+                    logger.error(f"Jira issue not found for Launchpad Bug {bug_url}, creating it now!!!")
 
                 if find_jira_comment(issue, payload.get("bug_comment")):
                     logger.error(
@@ -36,24 +35,29 @@ def sync_launchpad_action(payload: dict, jira_client: JIRA, project_config: dict
                 create_jira_comment(jira_client, issue, payload)
                 return
 
+            if sync_only_with_tags:
+                if not any(tag in sync_only_with_tags for tag in tags):
+                    logger.error(f"Launchpad bug tags do not match to syncable tags: {tags}")
+                    raise HTTPException(status_code=404)
+
             # Handle new issue creation
             if issue:
                 logger.error(f"Jira issue already exists for Launchpad Bug {bug_url}")
                 raise HTTPException(status_code=404)
 
-            if sync_only_with_tags:
-                if not any(tag in sync_only_with_tags for tag in tags):
-                    logger.error(f"Launchpad bug tags do not match to syncable tags: {tags}")
-                    raise HTTPException(status_code=404)
             create_jira_issue(jira_client, payload, project_config)
             return
 
         if "-changed" in action:
+            if sync_only_with_tags:
+                if not any(tag in sync_only_with_tags for tag in tags):
+                    logger.error(f"Launchpad bug tags do not match to syncable tags: {tags}")
+                    raise HTTPException(status_code=404)
+
             issue = find_jira_issue(jira_client, project_in_jira, bug_url)
             if not issue:
-                logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_url}")
-                raise HTTPException(status_code=404)
-
+                issue = create_jira_issue(jira_client, payload, project_config)
+                logger.error(f"Jira issue not found for edit event for Launchpad Bug {bug_url}, creating it now!!!")
             update_jira_issue(jira_client, issue, payload, project_config)
             return
 
